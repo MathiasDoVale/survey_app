@@ -68,20 +68,12 @@ def register():
     if form.validate_on_submit():
         flash(f'Account created for {form.email.data}!', 'success')
         return redirect(url_for('login'))
-    # if request.method == "POST":
-    #     email = request.form.get("email")
-    #     password = request.form.get("password")
-    #     confirm = request.form.get("confirm")
-    #     # Valido misma password
-    #     if password == confirm:
-    #         new_user = User(email=email, password=password)
-    #         db.session.add(new_user)
-    #         db.session.commit()
-    #         return redirect(url_for('login'))
-    #     else:
-    #         flash("Password does not match","danger")
-    #         return render_template("register.html")
-
+        email = request.form.get("email")
+        password = request.form.get("password")
+        new_user = User(email=email, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for('login'))
     return render_template("register.html", form=form)
 
 @app.route("/login",methods=["GET", "POST"])
@@ -92,9 +84,9 @@ def login():
         password = request.form.get("password")
         user = User.query.filter_by(email=email, password=password).first()
         if user is not None:
+            login_user(user, remember=True)
             db.session.add(user)
             db.session.commit()
-            login_user(user, remember=True)
             flash('You have been logged in!', 'success')
             return redirect(url_for("home"))
     return render_template("login.html", form=form)
