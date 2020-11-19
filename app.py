@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, session, logging, url_for, redirect, flash
 from flask_sqlalchemy  import SQLAlchemy
 from flask_login import LoginManager, login_required, login_user, logout_user, login_manager, current_user
-from models import User
+from forms import RegistrationForm, LoginForm
 
 
 # SETTINGS
@@ -13,6 +13,39 @@ db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+class User(db.Model):
+    """User capable to creates surveys.
+
+    :param str email: email of the user
+    :param str password: encrypted password for the user
+
+    """
+    __tablename__ = 'user'
+
+    email = db.Column(db.String, primary_key=True)
+    password = db.Column(db.String(80))
+    authenticated = db.Column(db.Boolean, default=False)
+
+    def __init__(self, email, password):
+        self.email = email
+        self.password = password
+
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    def get_id(self):
+        """Return the email address to satisfy Flask-Login's requirements."""
+        return self.email
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return self.authenticated
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
 
 
 @login_manager.user_loader
@@ -31,25 +64,30 @@ def home():
 
 @app.route("/register", methods=["GET","POST"])
 def register():
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        confirm = request.form.get("confirm")
-        # Valido misma password
-        if password == confirm:
-            new_user = User(email=email, password=password)
-            db.session.add(new_user)
-            db.session.commit()
-            return redirect(url_for('login'))
-        else:
-            flash("Password does not match","danger")
-            return render_template("register.html")
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        flash(f'Account created for {form.email.data}!', 'success')
+        return redirect(url_for('login'))
+    # if request.method == "POST":
+    #     email = request.form.get("email")
+    #     password = request.form.get("password")
+    #     confirm = request.form.get("confirm")
+    #     # Valido misma password
+    #     if password == confirm:
+    #         new_user = User(email=email, password=password)
+    #         db.session.add(new_user)
+    #         db.session.commit()
+    #         return redirect(url_for('login'))
+    #     else:
+    #         flash("Password does not match","danger")
+    #         return render_template("register.html")
 
-    return render_template("register.html")
+    return render_template("register.html", form=form)
 
 @app.route("/login",methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
+    form = LoginForm()
+    if form.validate_on_submit():
         email = request.form.get("email")
         password = request.form.get("password")
         user = User.query.filter_by(email=email, password=password).first()
@@ -57,8 +95,9 @@ def login():
             db.session.add(user)
             db.session.commit()
             login_user(user, remember=True)
+            flash('You have been logged in!', 'success')
             return redirect(url_for("home"))
-    return render_template("login.html")
+    return render_template("login.html", form=form)
 
 @app.route("/logout", methods=["GET"])
 @login_required
