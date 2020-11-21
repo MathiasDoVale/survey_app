@@ -32,3 +32,58 @@ class User(db.Model):
     def is_anonymous(self):
         """False, as anonymous users aren't supported."""
         return False
+
+class Survey(db.Model):
+    """Survey created by a user.
+
+    :param str title: title of the survey
+    :param str user_id: user who creates the survey
+    :param date createdate: date when survey was created
+    """
+    __tablename__ = 'survey'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(80), nullable=False)
+    user_id = db.Column(db.String(80), db.ForeignKey('user.email'), nullable=False)
+    created_date = db.Column(db.DateTime, server_default=db.func.now())
+
+    def __init__(self, title, user_id):
+        self.title = title
+        self.user_id = user_id
+
+class Question(db.Model):
+    """Question can be created on a Survey
+
+    :param str question_text: text of the question
+    :param str survey_id: survey of the question
+    :param date createdate: date when survey was created
+    """
+    __tablename__ = 'question'
+
+    id = db.Column(db.Integer, primary_key=True)
+    question_text = db.Column(db.String(80), nullable=False)
+    survey_id = db.Column(db.String(80), db.ForeignKey('survey.id'), nullable=False)
+
+    def __init__(self, question_text, survey_id):
+        self.question_text = question_text
+        self.survey_id = survey_id
+
+class Choice(db.Model):
+    """Choice can be created on a question
+
+    :param str choice_text: text of the choice
+    :param str question_id: question of the choice
+    :param int votes: number of votes of the option
+    """
+    __tablename__ = 'choice'
+
+    id = db.Column(db.Integer, primary_key=True)
+    choice_text = db.Column(db.String(80), nullable=False)
+    question_id = db.Column(db.String(80), db.ForeignKey('question.id'), nullable=False)
+    votes = db.Column(db.Integer, default=0)
+
+    def __init__(self, choice_text, question_id, votes):
+        self.choice_text = choice_text
+        self.question_id = question_id
+        self.votes = votes
+        
