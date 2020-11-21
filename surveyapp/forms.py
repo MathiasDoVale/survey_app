@@ -21,5 +21,12 @@ class SurveyForm(FlaskForm):
     option_2 = StringField('Option_2', validators=[DataRequired()])
     option_3 = StringField('Option_3', validators=[])
     option_4 = StringField('Option_4', validators=[])
-    finish_submit = SubmitField('Finish')
+    add_question_submit = SubmitField('Add Question')
+
+class QuestionForm(FlaskForm):
+    question = StringField('Question', validators=[DataRequired()])
+    option_1 = StringField('Option_1', validators=[DataRequired()])
+    option_2 = StringField('Option_2', validators=[DataRequired()])
+    option_3 = StringField('Option_3', validators=[])
+    option_4 = StringField('Option_4', validators=[])
     add_question_submit = SubmitField('Add Question')

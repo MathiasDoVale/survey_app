@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, session, logging, url_for, re
 from surveyapp.models import User, Survey, Question, Choice
 from surveyapp import app, db, login_manager, bcrypt
 from flask_login import login_required, login_user, logout_user, current_user
-from surveyapp.forms import RegistrationForm, LoginForm, SurveyForm
+from surveyapp.forms import RegistrationForm, LoginForm, SurveyForm, QuestionForm
 import os
 
 # Chequeo si existe la bd
@@ -105,5 +105,43 @@ def new_survey():
             db.session.add(new_choice_4)
             db.session.commit()
 
+        return redirect(url_for("add_question", survey_id=new_survey.id))
 
     return render_template("new_survey.html", form=form)
+
+@app.route('/add_question/<string:survey_id>', methods=['GET', 'POST'])
+@login_required
+def add_question(survey_id):
+    """Add a new question to the survey."""
+
+    form = QuestionForm()
+    if form.validate_on_submit():
+        # Question creation
+        new_question = Question(question_text=form.question.data, survey_id=survey_id)
+        db.session.add(new_question)
+        db.session.commit()
+        # Choices creation (minimum 2)
+        new_choice_1 = Choice(choice_text=form.option_1.data, question_id=new_question.id, votes=0)
+        db.session.add(new_choice_1)
+        db.session.commit()
+
+        new_choice_2 = Choice(choice_text=form.option_2.data, question_id=new_question.id, votes=0)
+        db.session.add(new_choice_2)
+        db.session.commit()
+
+        # Checking if choice 3 and 4 are empty
+        if not form.option_3.data == '':
+            new_choice_3 = Choice(choice_text=form.option_3.data, question_id=new_question.id, votes=0)
+            db.session.add(new_choice_3)
+            db.session.commit()
+
+        if not form.option_4.data == '':
+            new_choice_4 = Choice(choice_text=form.option_4.data, question_id=new_question.id, votes=0)
+            db.session.add(new_choice_4)
+            db.session.commit()
+
+        return redirect(url_for("add_question", survey_id=survey_id))
+
+
+    return render_template(("/add_question.html"), form=form)
+
