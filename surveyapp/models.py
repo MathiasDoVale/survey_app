@@ -63,6 +63,7 @@ class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     question_text = db.Column(db.String(80), nullable=False)
     survey_id = db.Column(db.String(80), db.ForeignKey('survey.id'), nullable=False)
+    choices = db.relationship('Choice', backref='choice', lazy=True)
 
     def __init__(self, question_text, survey_id):
         self.question_text = question_text
@@ -86,4 +87,7 @@ class Choice(db.Model):
         self.choice_text = choice_text
         self.question_id = question_id
         self.votes = votes
+
+    def vote(self):
+        self.votes += 1
         

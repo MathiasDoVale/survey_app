@@ -5,6 +5,7 @@ from flask_login import login_required, login_user, logout_user, current_user
 from surveyapp.forms import RegistrationForm, LoginForm, SurveyForm, QuestionForm
 import os
 
+
 # Chequeo si existe la bd
 if not os.path.isfile('surveyapp/test.db'):
     db.create_all()
@@ -20,10 +21,10 @@ def load_user(user_id):
 
 @app.route("/")
 @app.route("/home")
-@login_required
 def home():
     """Home page"""
-    return render_template("home.html")
+    surveys = Survey.query.all()
+    return render_template("home.html", surveys=surveys)
 
 @app.route("/register", methods=["GET","POST"])
 def register():
@@ -144,4 +145,19 @@ def add_question(survey_id):
 
 
     return render_template(("/add_question.html"), form=form)
+
+@app.route('/survey/<string:survey_id>', methods=['GET', 'POST'])
+def view_survey(survey_id):
+    """View questions of a survey and voting"""
+    if request.method == 'POST':
+        answers = request.form.getlist('select')
+        for obj in answers:
+            answer = Choice.query.filter(Choice.id == obj).first()
+            answer.vote()
+            db.session.commit()
+        return redirect(url_for("home"))
+
+    questions = Question.query.filter(Question.survey_id == survey_id)
+    return render_template("/survey.html", questions=questions)
+
 

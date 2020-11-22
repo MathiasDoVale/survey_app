@@ -15,7 +15,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
             <li class="nav-item active">
-              <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+              <a class="nav-link" href="/">Surveys <span class="sr-only">(current)</span></a>
             </li>
             {% if not current_user.is_authenticated %}
             <li class="nav-item">
@@ -29,12 +29,12 @@
             {% endif %}
             {% if current_user.is_authenticated %}
               <li class="nav-item">
-                <a class="nav-link" href="/logout">Logout</a>
+                <a class="nav-link" href="/new_survey">Create Survey</a>
               </li>
             {% endif %}
             {% if current_user.is_authenticated %}
               <li class="nav-item">
-                <a class="nav-link" href="/new_survey">Create Survey</a>
+                <a class="nav-link" href="/logout">Logout</a>
               </li>
             {% endif %}
           </ul>

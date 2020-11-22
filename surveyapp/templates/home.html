@@ -1,4 +1,17 @@
 {% extends "base.html" %}
 {% block body %}
-    <h1>Welcome</h1>
+    <div class="container">
+        <h1>Surveys</h1>
+        <div class="content-section">
+            
+            {% for survey in surveys %}
+                <div class="card" style="margin-top: 7px;">
+                    <div class="card-body">
+                        <a href="/survey/{{ survey.id }}"class="card-link">{{ survey.title }}</a>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
 {% endblock %}
