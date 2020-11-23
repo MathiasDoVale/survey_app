@@ -6,9 +6,14 @@ from surveyapp.forms import RegistrationForm, LoginForm, SurveyForm, QuestionFor
 import os
 
 
-# Chequeo si existe la bd
+# Chequeo si existe la bd y creo admin
 if not os.path.isfile('surveyapp/test.db'):
     db.create_all()
+    hashed_password = bcrypt.generate_password_hash("admin").decode('utf-8')
+    admin = User('admin@admin.com', hashed_password, True)
+    db.session.add(admin)
+    db.session.commit()
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -37,7 +42,7 @@ def register():
         email = request.form.get("email")
         password = request.form.get("password")
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        new_user = User(email=email, password=hashed_password)
+        new_user = User(email=email, password=hashed_password, admin=False)
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
@@ -55,6 +60,7 @@ def login():
             login_user(user, remember=True)
             db.session.add(user)
             db.session.commit()
+            print(current_user.is_admin())
             flash('You have been logged in!', 'success')
             return redirect(url_for("home"))
     return render_template("login.html", form=form)
@@ -158,6 +164,14 @@ def view_survey(survey_id):
         return redirect(url_for("home"))
 
     questions = Question.query.filter(Question.survey_id == survey_id)
-    return render_template("/survey.html", questions=questions)
+    survey = Survey.query.filter(Survey.id == survey_id).first()
+    return render_template("/survey.html", questions=questions, survey=survey)
 
 
+
+@app.route("/surveys_by_user")
+def survey_by_user():
+    """Surveys created by users"""
+    #surveys = Survey.query.all()
+    users = User.query.all()
+    return render_template("surveys_by_user.html", users=users)

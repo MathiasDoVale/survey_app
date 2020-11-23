@@ -1,34 +1,53 @@
 {% extends "base.html" %}
 {% block body %}
     <div class="container">
-        <h1>Questions</h1>
         <div class="content-section">
-            <form method="POST" action="">
-                <fieldset class="form-group">
-                    <div class="form-group">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        {% for question in questions %}
-    
-                            <div class="card" style="margin-top: 7px;">
-                                <div class="card-body">
-                                    {{ question.question_text }}
-                                </div>
-                            </div>
-    
-                            <select name='select' class="form-control">
-                                {% for choice in question.choices %}
-                                <option value={{choice.id}}>{{choice.choice_text}}</option>
-                                {% endfor %}
-                            </select>
-                            
-    
-                        {% endfor %}
+            <!-- if is admin or owner of the survey, show results -->
+            {% if ( current_user.is_admin() or (survey.get_user_id() == current_user.get_id()) ) %}
+                <h1>Results</h1>
+                {% for question in questions %}
+                
+                    <div class="card" style="margin-top: 7px;">
+                        <div class="card-body">
+                            {{ question.question_text }}
+                        </div>
                     </div>
-                </fieldset>
-                <div class="form-group">
-                    <input class="btn btn-primary" type="submit" value="Ok">
-                </div>
-            </form>
+
+                    {% for choice in question.choices %}
+                        <li>{{choice.choice_text}} - {{choice.votes}}</li>
+                    {% endfor %}
+           
+                {% endfor %}
+                <!-- Otherwise, show options to vote -->
+                {% else %}
+                    <h1>Questions</h1>
+                    <form method="POST" action="">
+                        <fieldset class="form-group">
+                            <div class="form-group">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                {% for question in questions %}
+            
+                                    <div class="card" style="margin-top: 7px;">
+                                        <div class="card-body">
+                                            {{ question.question_text }}
+                                        </div>
+                                    </div>
+            
+                                    <select name='select' class="form-control">
+                                        {% for choice in question.choices %}
+                                            <option value={{choice.id}}>{{choice.choice_text}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    
+            
+                                {% endfor %}
+                            </div>
+                        </fieldset>
+                        <div class="form-group">
+                            <input class="btn btn-primary" type="submit" value="Ok">
+                        </div>
+                    </form>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

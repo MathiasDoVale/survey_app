@@ -11,11 +11,14 @@ class User(db.Model):
 
     email = db.Column(db.String, primary_key=True)
     password = db.Column(db.String(80))
+    surveys = db.relationship('Survey', backref='user', lazy=True)
+    admin = db.Column(db.Boolean, default=False)
     authenticated = db.Column(db.Boolean, default=False)
 
-    def __init__(self, email, password):
+    def __init__(self, email, password, admin):
         self.email = email
         self.password = password
+        self.admin = admin
 
     def is_active(self):
         """True, as all users are active."""
@@ -32,6 +35,10 @@ class User(db.Model):
     def is_anonymous(self):
         """False, as anonymous users aren't supported."""
         return False
+
+    def is_admin(self):
+        """Return True if the user is an admin."""
+        return self.admin
 
 class Survey(db.Model):
     """Survey created by a user.
@@ -50,6 +57,9 @@ class Survey(db.Model):
     def __init__(self, title, user_id):
         self.title = title
         self.user_id = user_id
+
+    def get_user_id (self):
+        return self.user_id
 
 class Question(db.Model):
     """Question can be created on a Survey

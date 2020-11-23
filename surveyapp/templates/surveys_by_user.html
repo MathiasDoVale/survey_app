@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block body %}
+    <div class="container">
+        <h1>Surveys by users</h1>
+        <div class="content-section">
+            {% for user in users %}
+                <h6>{{user.get_id()}}</h6>
+                {% for survey in user.surveys %}
+                    <li>
+                        <a href="/survey/{{ survey.id }}"class="card-link">{{ survey.title }}</a>
+                    </li>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
