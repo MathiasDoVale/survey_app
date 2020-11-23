@@ -168,10 +168,11 @@ def view_survey(survey_id):
     return render_template("/survey.html", questions=questions, survey=survey)
 
 
-
 @app.route("/surveys_by_user")
+@login_required
 def survey_by_user():
     """Surveys created by users"""
-    #surveys = Survey.query.all()
+    if not current_user.is_admin():
+        return redirect(url_for("home"))
     users = User.query.all()
     return render_template("surveys_by_user.html", users=users)
