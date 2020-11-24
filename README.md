@@ -12,6 +12,12 @@ Command to run the app
 py run.py
 ```
 
+Admin credentials
+```bash
+user: admin@admin.com
+pass: admin
+```
+
 ## Modules
 * bcrypt==3.2.0
 * cffi==1.14.3
