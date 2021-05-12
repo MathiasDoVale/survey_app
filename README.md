@@ -17,7 +17,7 @@ Admin credentials
 user: admin@admin.com
 pass: admin
 ```
-
+![Screenshot from 2021-05-12 15-30-12](https://user-images.githubusercontent.com/25461133/118026710-7dcb9800-b337-11eb-953f-8cca5310a27e.png)
 
 
 ## Modules
